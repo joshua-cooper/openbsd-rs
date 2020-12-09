@@ -1,0 +1,10 @@
+[package]
+name = "openbsd"
+version = "0.1.0"
+edition = "2018"
+license = "ISC"
+readme = "README.md"
+description = "Rust bindings for OpenBSD's pledge(2) and unveil(2)."
+keywords = ["openbsd", "pledge", "unveil"]
+categories = ["external-ffi-bindings", "os"]
+authors = ["Joshua Cooper <j@cooper.cx>"]
