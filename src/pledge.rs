@@ -50,7 +50,6 @@ fn get_error() -> Error {
     }
 }
 
-// TODO: Give these better names.
 #[derive(Debug, Clone)]
 pub enum Error {
     NUL(NulError),

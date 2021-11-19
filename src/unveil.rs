@@ -5,8 +5,6 @@ use std::os::unix::ffi::OsStrExt;
 use std::path::Path;
 use std::ptr;
 
-// TODO: unveil!(path)
-// This should either give all permissions or no permissions for the specified path.
 #[macro_export]
 macro_rules! unveil {
     () => {
@@ -40,7 +38,6 @@ fn get_error() -> Error {
     }
 }
 
-// TODO: Give these better names.
 #[derive(Debug, Clone)]
 pub enum Error {
     NUL(NulError),
