@@ -1,0 +1,4 @@
+[toolchain]
+channel = "1.56.1"
+targets = ["aarch64-unknown-openbsd", "i686-unknown-openbsd", "x86_64-unknown-openbsd"]
+profile = "default"
