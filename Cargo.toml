@@ -1,14 +1,15 @@
 [package]
 name = "openbsd"
-version = "0.1.2"
-edition = "2018"
-license = "ISC"
+version = "0.2.0"
+edition = "2021"
+license = "0BSD"
 readme = "README.md"
 description = "Rust bindings for OpenBSD's pledge(2) and unveil(2)."
 keywords = ["openbsd", "pledge", "unveil"]
 categories = ["external-ffi-bindings", "os"]
-authors = ["Josh Cooper <josh@cooper.is>"]
+authors = ["Josh Cooper <josh@cooper.dev>"]
 repository = "https://github.com/joshua-cooper/openbsd-rs"
 
 [package.metadata.docs.rs]
+default-target = "x86_64-unknown-openbsd"
 targets = ["aarch64-unknown-openbsd", "i686-unknown-openbsd", "x86_64-unknown-openbsd"]

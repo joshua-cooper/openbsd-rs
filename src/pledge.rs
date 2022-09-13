@@ -1,7 +1,7 @@
-use std::ffi::{CString, NulError};
-use std::fmt;
-use std::io;
-use std::ptr;
+use std::{
+    ffi::{CStr, FromBytesWithNulError},
+    fmt, io, ptr,
+};
 
 #[macro_export]
 macro_rules! pledge {
@@ -16,25 +16,35 @@ macro_rules! pledge {
     };
 }
 
-pub fn pledge_promises(promises: impl Into<Vec<u8>>) -> Result<(), Error> {
-    let promises = CString::new(promises)?;
+pub fn pledge_promises<P>(promises: P) -> Result<(), Error>
+where
+    P: AsRef<[u8]>,
+{
+    let promises = CStr::from_bytes_with_nul(promises.as_ref())?;
     match unsafe { crate::ffi::pledge(promises.as_ptr(), ptr::null()) } {
         0 => Ok(()),
         _ => Err(get_error()),
     }
 }
 
-pub fn pledge_execpromises(execpromises: impl Into<Vec<u8>>) -> Result<(), Error> {
-    let execpromises = CString::new(execpromises)?;
+pub fn pledge_execpromises<E>(execpromises: E) -> Result<(), Error>
+where
+    E: AsRef<[u8]>,
+{
+    let execpromises = CStr::from_bytes_with_nul(execpromises.as_ref())?;
     match unsafe { crate::ffi::pledge(ptr::null(), execpromises.as_ptr()) } {
         0 => Ok(()),
         _ => Err(get_error()),
     }
 }
 
-pub fn pledge(promises: impl Into<Vec<u8>>, execpromises: impl Into<Vec<u8>>) -> Result<(), Error> {
-    let promises = CString::new(promises)?;
-    let execpromises = CString::new(execpromises)?;
+pub fn pledge<P, E>(promises: P, execpromises: E) -> Result<(), Error>
+where
+    P: AsRef<[u8]>,
+    E: AsRef<[u8]>,
+{
+    let promises = CStr::from_bytes_with_nul(promises.as_ref())?;
+    let execpromises = CStr::from_bytes_with_nul(execpromises.as_ref())?;
     match unsafe { crate::ffi::pledge(promises.as_ptr(), execpromises.as_ptr()) } {
         0 => Ok(()),
         _ => Err(get_error()),
@@ -52,7 +62,7 @@ fn get_error() -> Error {
 
 #[derive(Debug, Clone)]
 pub enum Error {
-    NUL(NulError),
+    Nul(FromBytesWithNulError),
     EPERM,
     EFAULT,
     EINVAL,
@@ -61,21 +71,20 @@ pub enum Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::NUL(e) => write!(f, "{}", e),
-            Self::EPERM => write!(f, "This process is attempting to increase permissions."),
-            Self::EFAULT => write!(
-                f,
-                "promises or execpromises points outside the process's allocated address space."
+            Self::Nul(error) => error.fmt(f),
+            Self::EPERM => f.write_str("This process is attempting to increase permissions."),
+            Self::EFAULT => f.write_str(
+                "promises or execpromises points outside the process's allocated address space.",
             ),
-            Self::EINVAL => write!(f, "promises is malformed or contains invalid keywords."),
+            Self::EINVAL => f.write_str("promises is malformed or contains invalid keywords."),
         }
     }
 }
 
 impl std::error::Error for Error {}
 
-impl From<NulError> for Error {
-    fn from(e: NulError) -> Self {
-        Self::NUL(e)
+impl From<FromBytesWithNulError> for Error {
+    fn from(error: FromBytesWithNulError) -> Self {
+        Self::Nul(error)
     }
 }
